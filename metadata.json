@@ -1,0 +1,7 @@
+{
+  "name": "RPG Quest Generator",
+  "description": "Procedural quest generation and detailed character creation system for tabletop RPGs with races, classes, appearance customization, and character sheets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

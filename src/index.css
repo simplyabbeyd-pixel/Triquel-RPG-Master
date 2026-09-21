@@ -1,0 +1,304 @@
+@import "tailwindcss";
+
+@theme {
+  --font-cinzel: "Cinzel", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* Base Body Styles */
+body {
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* -------------------------------------------------------------------------- */
+/* THEME: DARK FANTASY (Default)                                              */
+/* -------------------------------------------------------------------------- */
+body,
+body.theme-dark {
+  background-color: #0d1117;
+  color: #e2e8f0;
+}
+
+/* Scrollbar - Dark Fantasy */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #131720;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a3447;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3b4862;
+}
+
+/* -------------------------------------------------------------------------- */
+/* THEME: PARCHMENT / LIGHT (Tabletop High-Contrast Mode)                     */
+/* -------------------------------------------------------------------------- */
+
+body.theme-parchment,
+.theme-parchment {
+  background-color: #f7f2e7;
+  color: #231f1d;
+  color-scheme: light;
+}
+
+/* Parchment subtle texture overlay */
+body.theme-parchment {
+  background-image: 
+    radial-gradient(#e4d6bf 0.75px, transparent 0.75px), 
+    radial-gradient(#e4d6bf 0.75px, #f6f1e5 0.75px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+  background-attachment: fixed;
+}
+
+/* Parchment Scrollbar */
+body.theme-parchment ::-webkit-scrollbar-track,
+.theme-parchment::-webkit-scrollbar-track {
+  background: #ece1cd;
+}
+
+body.theme-parchment ::-webkit-scrollbar-thumb,
+.theme-parchment::-webkit-scrollbar-thumb {
+  background: #c7b597;
+  border-radius: 4px;
+}
+
+body.theme-parchment ::-webkit-scrollbar-thumb:hover,
+.theme-parchment::-webkit-scrollbar-thumb:hover {
+  background: #b09c7a;
+}
+
+/* Top app header in parchment mode */
+.theme-parchment header#app-header,
+.theme-parchment .parchment-header {
+  background-color: rgba(243, 235, 220, 0.95) !important;
+  border-bottom-color: #d8c9ad !important;
+  box-shadow: 0 2px 10px rgba(80, 58, 28, 0.06);
+}
+
+/* Surface backgrounds in parchment mode */
+.theme-parchment .bg-slate-950,
+.theme-parchment .bg-slate-950\/90,
+.theme-parchment .bg-slate-950\/80,
+.theme-parchment .bg-slate-950\/60,
+.theme-parchment .bg-stone-950,
+.theme-parchment .bg-stone-950\/90,
+.theme-parchment .bg-stone-950\/80 {
+  background-color: #efe5d1 !important;
+}
+
+.theme-parchment .bg-slate-900,
+.theme-parchment .bg-slate-900\/95,
+.theme-parchment .bg-slate-900\/90,
+.theme-parchment .bg-slate-900\/80,
+.theme-parchment .bg-slate-900\/60,
+.theme-parchment .bg-stone-900,
+.theme-parchment .bg-stone-900\/90,
+.theme-parchment .bg-stone-900\/80 {
+  background-color: #fffdf9 !important;
+  box-shadow: 0 4px 18px -2px rgba(85, 60, 30, 0.08), 0 1px 3px rgba(85, 60, 30, 0.05);
+}
+
+.theme-parchment .bg-slate-800,
+.theme-parchment .bg-slate-800\/90,
+.theme-parchment .bg-slate-800\/80,
+.theme-parchment .bg-slate-800\/70,
+.theme-parchment .bg-slate-800\/60,
+.theme-parchment .bg-slate-800\/50,
+.theme-parchment .bg-slate-800\/40,
+.theme-parchment .bg-stone-800,
+.theme-parchment .bg-stone-800\/90,
+.theme-parchment .bg-stone-800\/70,
+.theme-parchment .bg-stone-800\/60 {
+  background-color: #f1e7d2 !important;
+}
+
+/* Border colors in parchment mode */
+.theme-parchment .border-slate-800,
+.theme-parchment .border-slate-800\/90,
+.theme-parchment .border-slate-800\/80,
+.theme-parchment .border-slate-800\/60,
+.theme-parchment .border-slate-700,
+.theme-parchment .border-slate-700\/70,
+.theme-parchment .border-slate-700\/60,
+.theme-parchment .border-slate-900,
+.theme-parchment .border-stone-800,
+.theme-parchment .border-stone-700,
+.theme-parchment .border-stone-900 {
+  border-color: #d6c6a8 !important;
+}
+
+.theme-parchment .hover\:border-slate-700:hover,
+.theme-parchment .hover\:border-stone-700:hover {
+  border-color: #bfa982 !important;
+}
+
+/* Typography ink tones in parchment mode */
+.theme-parchment .text-slate-100,
+.theme-parchment .text-slate-50,
+.theme-parchment .text-stone-100,
+.theme-parchment .text-stone-50,
+.theme-parchment .text-white {
+  color: #1f1b18 !important;
+}
+
+.theme-parchment .text-slate-200,
+.theme-parchment .text-stone-200 {
+  color: #2b2520 !important;
+}
+
+.theme-parchment .text-slate-300,
+.theme-parchment .text-stone-300 {
+  color: #3f3730 !important;
+}
+
+.theme-parchment .text-slate-400,
+.theme-parchment .text-stone-400 {
+  color: #5e5348 !important;
+}
+
+.theme-parchment .text-slate-500,
+.theme-parchment .text-stone-500 {
+  color: #7a6e60 !important;
+}
+
+/* Amber highlights tuned for parchment contrast */
+.theme-parchment .text-amber-400,
+.theme-parchment .text-amber-300,
+.theme-parchment .text-amber-200 {
+  color: #92400e !important;
+}
+
+.theme-parchment .text-amber-500 {
+  color: #b45309 !important;
+}
+
+.theme-parchment .bg-amber-500\/10,
+.theme-parchment .bg-amber-500\/20 {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.theme-parchment .border-amber-500\/30,
+.theme-parchment .border-amber-500\/40,
+.theme-parchment .border-amber-500\/60 {
+  border-color: #f59e0b !important;
+}
+
+/* High contrast tabletop difficulty badges in parchment mode */
+.theme-parchment .bg-emerald-950\/80 {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  border-color: #a7f3d0 !important;
+}
+.theme-parchment .text-emerald-400,
+.theme-parchment .text-emerald-300 {
+  color: #047857 !important;
+}
+
+.theme-parchment .bg-teal-950\/80 {
+  background-color: #f0fdfa !important;
+  color: #115e59 !important;
+  border-color: #99f6e4 !important;
+}
+.theme-parchment .text-teal-400,
+.theme-parchment .text-teal-300 {
+  color: #0f766e !important;
+}
+
+.theme-parchment .bg-sky-950\/80 {
+  background-color: #f0f9ff !important;
+  color: #075985 !important;
+  border-color: #bae6fd !important;
+}
+.theme-parchment .text-sky-400,
+.theme-parchment .text-sky-300 {
+  color: #0284c7 !important;
+}
+
+.theme-parchment .bg-purple-950\/80 {
+  background-color: #faf5ff !important;
+  color: #581c87 !important;
+  border-color: #e9d5ff !important;
+}
+.theme-parchment .text-purple-400,
+.theme-parchment .text-purple-300 {
+  color: #7e22ce !important;
+}
+
+.theme-parchment .bg-amber-950\/80 {
+  background-color: #fffbeb !important;
+  color: #78350f !important;
+  border-color: #fde68a !important;
+}
+
+.theme-parchment .bg-rose-950\/80 {
+  background-color: #fff1f2 !important;
+  color: #9f1239 !important;
+  border-color: #fecdd3 !important;
+}
+.theme-parchment .text-rose-400,
+.theme-parchment .text-rose-300 {
+  color: #be123c !important;
+}
+
+/* Form inputs & interactive controls in parchment mode */
+.theme-parchment input[type="text"],
+.theme-parchment input[type="number"],
+.theme-parchment select,
+.theme-parchment textarea {
+  background-color: #faf6ed !important;
+  border-color: #d1c1a3 !important;
+  color: #1f1b18 !important;
+}
+
+.theme-parchment input[type="text"]::placeholder,
+.theme-parchment textarea::placeholder {
+  color: #8c7e6c !important;
+}
+
+.theme-parchment input:focus,
+.theme-parchment select:focus,
+.theme-parchment textarea:focus {
+  border-color: #b45309 !important;
+  outline-color: #b45309 !important;
+}
+
+/* Modals & Dialog overlays in parchment mode */
+.theme-parchment .fixed.inset-0.bg-slate-950\/80,
+.theme-parchment .fixed.inset-0.bg-black\/70,
+.theme-parchment .fixed.inset-0.bg-black\/60 {
+  background-color: rgba(45, 35, 25, 0.65) !important;
+  backdrop-filter: blur(4px);
+}
+
+/* Toast banner in parchment mode */
+.theme-parchment #toast-notification-banner {
+  background-color: #fffdf9 !important;
+  border-color: #d97706 !important;
+  color: #78350f !important;
+  box-shadow: 0 10px 25px -3px rgba(120, 53, 15, 0.2) !important;
+}
+
+/* Tabletop parchment card seal accents */
+.theme-parchment .card-seal-bar {
+  background: linear-gradient(to right, #b45309, #d97706, #b45309);
+}
+
+/* Tabletop dice & stat dice tiles */
+.theme-parchment .tabletop-dice-tile {
+  background-color: #fffdf9 !important;
+  border-color: #c9b794 !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05), 0 2px 5px rgba(80,50,20,0.1);
+}
