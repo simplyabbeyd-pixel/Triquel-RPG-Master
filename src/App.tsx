@@ -5,6 +5,7 @@ import {
   generateQuestBoard,
   generateRandomQuest,
 } from './utils/questGenerator';
+import { DEFAULT_COMPLETED_TIMELINE } from './utils/timelineData';
 import { QuestCard } from './components/QuestCard';
 import { QuestFilters } from './components/QuestFilters';
 import { QuestEditModal } from './components/QuestEditModal';
@@ -57,6 +58,7 @@ export default function App() {
 
   const [quests, setQuests] = useState<Quest[]>([]);
   const [activeQuests, setActiveQuests] = useState<Quest[]>([]);
+  const [completedQuests, setCompletedQuests] = useState<Quest[]>([]);
   const [playerStats, setPlayerStats] = useState<PlayerStats>({
     totalGold: 0,
     totalExp: 0,
@@ -98,6 +100,7 @@ export default function App() {
   // Initialize board on first mount and load local persistence
   useEffect(() => {
     const savedActive = localStorage.getItem('rpg_active_quests');
+    const savedCompleted = localStorage.getItem('rpg_completed_quests');
     const savedStats = localStorage.getItem('rpg_player_stats');
     const savedHero = localStorage.getItem('rpg_saved_hero');
 
@@ -109,12 +112,32 @@ export default function App() {
       }
     }
 
+    if (savedCompleted) {
+      try {
+        setCompletedQuests(JSON.parse(savedCompleted));
+      } catch {
+        // ignore parse error
+      }
+    } else {
+      // Seed with initial chronicle timeline sample so player has immediate history
+      setCompletedQuests(DEFAULT_COMPLETED_TIMELINE);
+    }
+
     if (savedStats) {
       try {
         setPlayerStats(JSON.parse(savedStats));
       } catch {
         // ignore parse error
       }
+    } else if (!savedCompleted) {
+      // Calculate initial starter career stats from sample timeline
+      const initGold = DEFAULT_COMPLETED_TIMELINE.reduce((sum, q) => sum + (q.rewards?.gold || 0), 0);
+      const initExp = DEFAULT_COMPLETED_TIMELINE.reduce((sum, q) => sum + (q.rewards?.exp || 0), 0);
+      setPlayerStats({
+        totalGold: initGold,
+        totalExp: initExp,
+        completedCount: DEFAULT_COMPLETED_TIMELINE.length,
+      });
     }
 
     if (savedHero) {
@@ -130,7 +153,7 @@ export default function App() {
     setQuests(initialBoard);
   }, []);
 
-  // Save active quests & stats to localStorage whenever changed
+  // Save active quests, completed quests & stats to localStorage whenever changed
   useEffect(() => {
     try {
       localStorage.setItem('rpg_active_quests', JSON.stringify(activeQuests));
@@ -138,6 +161,14 @@ export default function App() {
       // ignore
     }
   }, [activeQuests]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('rpg_completed_quests', JSON.stringify(completedQuests));
+    } catch {
+      // ignore
+    }
+  }, [completedQuests]);
 
   useEffect(() => {
     try {
@@ -239,6 +270,15 @@ export default function App() {
 
     playCoinSound();
 
+    const finishedQuest: Quest = {
+      ...quest,
+      status: 'completed',
+      completedAt: Date.now(),
+      objectives: quest.objectives.map((o) => ({ ...o, completed: true })),
+    };
+
+    setCompletedQuests((prev) => [finishedQuest, ...prev]);
+
     setPlayerStats((prev) => ({
       totalGold: prev.totalGold + quest.rewards.gold,
       totalExp: prev.totalExp + quest.rewards.exp,
@@ -249,6 +289,41 @@ export default function App() {
     showToast(
       `Quest Completed! Received ${quest.rewards.gold.toLocaleString()} GP & ${quest.rewards.exp.toLocaleString()} EXP!`
     );
+  };
+
+  // Reopen completed quest back into active journal
+  const handleReopenQuest = (questId: string) => {
+    const quest = completedQuests.find((q) => q.id === questId);
+    if (!quest) return;
+
+    const reopened: Quest = {
+      ...quest,
+      status: 'active',
+    };
+
+    setCompletedQuests((prev) => prev.filter((q) => q.id !== questId));
+    setActiveQuests((prev) => [reopened, ...activeQuests]);
+    showToast(`Reopened "${quest.title}" into Active Contracts`);
+  };
+
+  // Update player notes on completed quest in timeline
+  const handleUpdateCompletedNotes = (questId: string, notes: string) => {
+    setCompletedQuests((prev) =>
+      prev.map((q) => (q.id === questId ? { ...q, notes } : q))
+    );
+    showToast('Chronicle notes updated');
+  };
+
+  // Reload demo sample completed quests into timeline
+  const handleLoadSampleCompleted = () => {
+    setCompletedQuests(DEFAULT_COMPLETED_TIMELINE);
+    showToast('Demo chronicle contracts loaded into timeline');
+  };
+
+  // Clear completed history
+  const handleClearCompletedHistory = () => {
+    setCompletedQuests([]);
+    showToast('Completed quest chronicle cleared');
   };
 
   // Abandon quest
@@ -624,9 +699,10 @@ export default function App() {
             </div>
           </>
         ) : activeTab === 'journal' ? (
-          /* Active Quest Journal */
+          /* Active Quest Journal & Completed Timeline */
           <ActiveJournal
             activeQuests={activeQuests}
+            completedQuests={completedQuests}
             onToggleObjective={handleToggleObjective}
             onCompleteQuest={handleCompleteQuest}
             onAbandonQuest={handleAbandonQuest}
@@ -638,6 +714,10 @@ export default function App() {
             }}
             onOpenSheetsExport={() => setIsSheetsModalOpen(true)}
             onUpdateNotes={handleUpdateQuestNotes}
+            onReopenQuest={handleReopenQuest}
+            onUpdateCompletedNotes={handleUpdateCompletedNotes}
+            onLoadSampleCompleted={handleLoadSampleCompleted}
+            onClearCompletedHistory={handleClearCompletedHistory}
           />
         ) : (
           /* Character Creator Studio */

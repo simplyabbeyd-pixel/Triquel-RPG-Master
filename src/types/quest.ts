@@ -76,6 +76,7 @@ export interface Quest {
   tags: string[];
   status: 'available' | 'active' | 'completed' | 'abandoned';
   createdAt: number;
+  completedAt?: number;         // Timestamp when the quest was completed
 }
 
 export interface GenerationOptions {

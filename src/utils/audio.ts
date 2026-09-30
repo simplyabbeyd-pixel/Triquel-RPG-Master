@@ -118,6 +118,33 @@ export function playCoinSound() {
   }
 }
 
+// Gentle UI click sound
+export function playClickSound() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.04);
+
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.045);
+  } catch {
+    // Ignore
+  }
+}
+
 // Aliases for tabletop character creation
 export const playCoinChime = playCoinSound;
 export const playDiceRollSound = playRollSound;
