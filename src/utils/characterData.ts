@@ -3,6 +3,7 @@ import {
   BackgroundType,
   BuildType,
   ClassData,
+  ClassType,
   HairStyle,
   RaceData,
   RaceType,

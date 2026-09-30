@@ -26,6 +26,7 @@ export const QuestEditModal: React.FC<QuestEditModalProps> = ({
   const [exp, setExp] = useState(quest.rewards.exp);
   const [objectives, setObjectives] = useState(quest.objectives);
   const [newObjText, setNewObjText] = useState('');
+  const [notes, setNotes] = useState(quest.notes || '');
 
   const handleAddObjective = () => {
     if (!newObjText.trim()) return;
@@ -54,6 +55,7 @@ export const QuestEditModal: React.FC<QuestEditModalProps> = ({
       difficulty: getDifficultyForLevel(level),
       type,
       objectives,
+      notes: notes.trim() || undefined,
       rewards: {
         ...quest.rewards,
         gold,
@@ -202,6 +204,21 @@ export const QuestEditModal: React.FC<QuestEditModalProps> = ({
                 Add
               </button>
             </div>
+          </div>
+
+          {/* Notes */}
+          <div className="pt-2 border-t border-slate-800">
+            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              Player Field Notes (Optional)
+            </label>
+            <textarea
+              id="input-edit-notes"
+              rows={2}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Record clues, tavern rumors, monster vulnerabilities, or contacts..."
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-sans"
+            />
           </div>
 
           {/* Rewards */}

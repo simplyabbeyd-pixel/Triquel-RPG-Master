@@ -130,7 +130,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({
                 race={character.race}
                 classNameType={character.class}
                 appearance={character.appearance}
-                size={110}
+                size="xl"
               />
             </div>
 
@@ -180,7 +180,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({
                 <Heart className="w-4 h-4" />
                 <span className="text-[10px] font-mono uppercase font-bold tracking-wider">Max Hit Points</span>
               </div>
-              <div className="text-2xl font-black">{character.maxHP}</div>
+              <div className="text-2xl font-black">{character.hpMax}</div>
             </div>
 
             <div className="p-3 rounded-xl border border-inherit bg-slate-950/30">
@@ -198,7 +198,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({
                 <Footprints className="w-4 h-4" />
                 <span className="text-[10px] font-mono uppercase font-bold tracking-wider">Speed</span>
               </div>
-              <div className="text-2xl font-black">{character.speed} ft</div>
+              <div className="text-2xl font-black">{raceInfo.speed} ft</div>
             </div>
           </div>
 
@@ -239,16 +239,21 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({
               </h4>
               <div className="space-y-2 text-xs">
                 <div>
-                  <span className="font-semibold">{raceInfo.name} Racial Trait:</span>{' '}
-                  <span className="opacity-80">{raceInfo.trait}</span>
+                  <span className="font-semibold">{raceInfo.name} Racial Traits:</span>{' '}
+                  <span className="opacity-80">{raceInfo.traits?.join(' • ') || 'None'}</span>
                 </div>
                 <div>
-                  <span className="font-semibold">{classInfo.name} Core Feature:</span>{' '}
-                  <span className="opacity-80">{classInfo.feature}</span>
+                  <span className="font-semibold">{classInfo.name} Core Features:</span>{' '}
+                  <span className="opacity-80">{classInfo.features?.join(' • ') || 'None'}</span>
                 </div>
                 <div>
                   <span className="font-semibold">Starting Gear:</span>{' '}
-                  <span className="opacity-80">{classInfo.defaultEquipment.join(', ')}</span>
+                  <span className="opacity-80">
+                    {(character.equipment && character.equipment.length > 0
+                      ? character.equipment
+                      : classInfo.startingEquipment
+                    ).join(', ')}
+                  </span>
                 </div>
               </div>
             </div>

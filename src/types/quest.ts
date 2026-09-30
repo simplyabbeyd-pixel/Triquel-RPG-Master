@@ -72,6 +72,7 @@ export interface Quest {
   rewards: QuestReward;
   flavorText?: string;
   timeEstimate?: string;
+  notes?: string;               // Optional player-added notes/field notes
   tags: string[];
   status: 'available' | 'active' | 'completed' | 'abandoned';
   createdAt: number;

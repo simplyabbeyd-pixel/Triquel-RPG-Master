@@ -50,12 +50,14 @@ import {
   ChevronRight,
   ChevronLeft,
   Wand2,
+  HardDrive,
 } from 'lucide-react';
 
 interface CharacterCreatorProps {
   onSaveCharacter: (character: Character) => void;
   onViewSheet: (character: Character) => void;
   initialCharacter?: Character | null;
+  onOpenDriveExport?: (character?: Character) => void;
 }
 
 type TabKey = 'race' | 'class' | 'appearance' | 'stats' | 'background';
@@ -64,6 +66,7 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({
   onSaveCharacter,
   onViewSheet,
   initialCharacter,
+  onOpenDriveExport,
 }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('race');
 
@@ -270,6 +273,23 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({
             <Save className="w-3.5 h-3.5" />
             Save Hero to Roster
           </button>
+
+          {onOpenDriveExport && (
+            <button
+              id="export-hero-drive-btn"
+              type="button"
+              onClick={() => {
+                const char = buildCurrentCharacter();
+                onSaveCharacter(char);
+                onOpenDriveExport(char);
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-300 border border-amber-600/40 font-medium text-xs shadow-sm transition active:scale-95 cursor-pointer"
+              title="Export Hero Sheet to Google Drive as PDF or JSON"
+            >
+              <HardDrive className="w-3.5 h-3.5 text-amber-400" />
+              Export to Drive
+            </button>
+          )}
         </div>
       </div>
 
@@ -1036,10 +1056,24 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({
                   </button>
 
                   <div className="flex items-center gap-3">
+                    {onOpenDriveExport && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const char = buildCurrentCharacter();
+                          onSaveCharacter(char);
+                          onOpenDriveExport(char);
+                        }}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-300 font-medium text-xs border border-amber-600/40 cursor-pointer"
+                      >
+                        <HardDrive className="w-3.5 h-3.5 text-amber-400" />
+                        Export to Drive
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={handleInspectSheet}
-                      className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-300 font-medium text-xs border border-amber-600/30 cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-medium text-xs border border-stone-700 cursor-pointer"
                     >
                       View Tabletop Sheet
                     </button>

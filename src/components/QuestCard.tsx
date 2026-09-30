@@ -18,6 +18,8 @@ import {
   Swords,
   User,
   Zap,
+  StickyNote,
+  Check,
 } from 'lucide-react';
 import { Quest, QuestDifficulty, QuestType } from '../types/quest';
 import { ItemCard } from './ItemTooltip';
@@ -33,6 +35,7 @@ interface QuestCardProps {
   onToggleObjective?: (questId: string, objectiveId: string) => void;
   onCompleteQuest?: (questId: string) => void;
   isJournalView?: boolean;
+  onUpdateNotes?: (questId: string, notes: string) => void;
 }
 
 export const difficultyBadgeColor: Record<QuestDifficulty, { badge: string; text: string; ring: string }> = {
@@ -98,9 +101,25 @@ export const QuestCard: React.FC<QuestCardProps> = ({
   onToggleObjective,
   onCompleteQuest,
   isJournalView = false,
+  onUpdateNotes,
 }) => {
   const [copied, setCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [playerNotes, setPlayerNotes] = useState(quest.notes || '');
+  const [notesSavedIndicator, setNotesSavedIndicator] = useState(false);
+
+  React.useEffect(() => {
+    setPlayerNotes(quest.notes || '');
+  }, [quest.notes]);
+
+  const handleNotesChange = (val: string) => {
+    setPlayerNotes(val);
+    if (onUpdateNotes) {
+      onUpdateNotes(quest.id, val);
+      setNotesSavedIndicator(true);
+      setTimeout(() => setNotesSavedIndicator(false), 1500);
+    }
+  };
 
   const diffStyle = difficultyBadgeColor[quest.difficulty] || difficultyBadgeColor.Novice;
 
@@ -311,6 +330,37 @@ export const QuestCard: React.FC<QuestCardProps> = ({
                   {quest.rewards.bonusRewardText}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Player-added Field Notes (Journal View) */}
+          {isJournalView && (
+            <div
+              id={`quest-notes-container-${quest.id}`}
+              className="pt-2 border-t border-slate-800/80 space-y-1.5"
+            >
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor={`quest-notes-textarea-${quest.id}`}
+                  className="text-[11px] uppercase tracking-wider font-semibold text-amber-400/90 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <StickyNote className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Player Field Notes</span>
+                </label>
+                {notesSavedIndicator && (
+                  <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 animate-fadeIn font-mono">
+                    <Check className="w-3 h-3" /> Saved
+                  </span>
+                )}
+              </div>
+              <textarea
+                id={`quest-notes-textarea-${quest.id}`}
+                value={playerNotes}
+                onChange={(e) => handleNotesChange(e.target.value)}
+                placeholder="Write your notes here: clues, NPC contacts, beast weaknesses, coordinates..."
+                rows={2}
+                className="w-full bg-slate-950/80 border border-slate-800 hover:border-slate-700 focus:border-amber-500/70 rounded-lg p-2.5 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-hidden focus:ring-1 focus:ring-amber-500/30 transition font-sans leading-relaxed resize-y"
+              />
             </div>
           )}
         </div>

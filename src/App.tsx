@@ -13,6 +13,11 @@ import { ActiveJournal } from './components/ActiveJournal';
 import { CharacterCreator } from './components/CharacterCreator';
 import { CharacterSheetModal } from './components/CharacterSheetModal';
 import { ThemeToggle } from './components/ThemeToggle';
+import { DriveExportModal } from './components/DriveExportModal';
+import { SheetsExportModal } from './components/SheetsExportModal';
+import { GoogleSignInButton } from './components/GoogleSignInButton';
+import { initAuth, googleSignIn, googleSignOut, getAccessToken } from './services/firebaseAuth';
+import { User as FirebaseUser } from 'firebase/auth';
 import { useTheme } from './context/ThemeContext';
 import { playCoinSound, playRollSound } from './utils/audio';
 import {
@@ -28,6 +33,9 @@ import {
   User,
   Shield,
   Scroll,
+  HardDrive,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface PlayerStats {
@@ -62,6 +70,30 @@ export default function App() {
   const [inspectingCharacter, setInspectingCharacter] = useState<Character | null>(null);
   const [isSheetModalOpen, setIsSheetModalOpen] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+
+  // Google OAuth / Drive State
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
+  const [driveTarget, setDriveTarget] = useState<'hero' | 'journal' | 'campaign'>('journal');
+  const [isSheetsModalOpen, setIsSheetsModalOpen] = useState(false);
+
+  // Listen to Firebase Auth state
+  useEffect(() => {
+    const unsubscribe = initAuth(
+      (currentUser, token) => {
+        setUser(currentUser);
+        setAccessToken(token);
+      },
+      () => {
+        setUser(null);
+        setAccessToken(null);
+      }
+    );
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   // Initialize board on first mount and load local persistence
   useEffect(() => {
@@ -249,6 +281,38 @@ export default function App() {
     setIsSheetModalOpen(true);
   };
 
+  // Google OAuth sign-in flow
+  const handleGoogleSignIn = async () => {
+    try {
+      const res = await googleSignIn();
+      setUser(res.user);
+      setAccessToken(res.accessToken);
+      showToast(`Connected to Google Drive as ${res.user.displayName || res.user.email}`);
+    } catch (err: any) {
+      showToast(err?.message || 'Google Sign-In failed');
+      throw err;
+    }
+  };
+
+  // Google OAuth sign-out
+  const handleGoogleSignOut = async () => {
+    try {
+      await googleSignOut();
+      setUser(null);
+      setAccessToken(null);
+      showToast('Signed out of Google Account');
+    } catch (err: any) {
+      showToast(err?.message || 'Sign out failed');
+    }
+  };
+
+  // Update player-added field notes on a quest
+  const handleUpdateQuestNotes = (questId: string, notes: string) => {
+    setActiveQuests((prev) =>
+      prev.map((q) => (q.id === questId ? { ...q, notes } : q))
+    );
+  };
+
   return (
     <div
       className={`min-h-screen flex flex-col transition-colors duration-300 ${
@@ -403,6 +467,51 @@ export default function App() {
             {/* Dedicated Tabletop Theme Mode Toggle (Dark Fantasy vs Parchment/Light) */}
             <ThemeToggle />
 
+            {/* Google Drive Account Status / Sign In Button */}
+            <div className="hidden sm:flex items-center">
+              {user ? (
+                <div
+                  className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border text-xs shadow-sm ${
+                    isParchment
+                      ? 'bg-[#ede3ce] border-[#d5c7a9] text-[#241e19]'
+                      : 'bg-slate-900 border-slate-800 text-slate-200'
+                  }`}
+                >
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt={user.displayName || 'Google'}
+                      className="w-5 h-5 rounded-full border border-emerald-500/40"
+                    />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-emerald-600/20 text-emerald-300 flex items-center justify-center font-bold text-[10px]">
+                      {user.displayName?.charAt(0) || 'G'}
+                    </div>
+                  )}
+                  <span
+                    className="font-medium truncate max-w-[85px] text-[11px]"
+                    title={user.displayName || user.email || ''}
+                  >
+                    {user.displayName?.split(' ')[0] || 'Drive'}
+                  </span>
+                  <span
+                    className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"
+                    title="Google Drive Connected"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignOut}
+                    className="text-slate-400 hover:text-rose-400 p-0.5 ml-0.5 transition cursor-pointer"
+                    title="Disconnect Google Account"
+                  >
+                    <LogOut className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <GoogleSignInButton onClick={handleGoogleSignIn} label="Connect Drive" />
+              )}
+            </div>
+
             {/* Developer / Tabletop Engine Docs */}
             <button
               id="btn-open-dev-docs"
@@ -523,6 +632,12 @@ export default function App() {
             onAbandonQuest={handleAbandonQuest}
             playerStats={playerStats}
             onSwitchToBoard={() => setActiveTab('board')}
+            onOpenDriveExport={() => {
+              setDriveTarget('journal');
+              setIsDriveModalOpen(true);
+            }}
+            onOpenSheetsExport={() => setIsSheetsModalOpen(true)}
+            onUpdateNotes={handleUpdateQuestNotes}
           />
         ) : (
           /* Character Creator Studio */
@@ -530,6 +645,11 @@ export default function App() {
             onSaveCharacter={handleSaveCharacter}
             onViewSheet={handleViewCharacterSheet}
             initialCharacter={savedCharacter}
+            onOpenDriveExport={(char) => {
+              if (char) setSavedCharacter(char);
+              setDriveTarget('hero');
+              setIsDriveModalOpen(true);
+            }}
           />
         )}
       </main>
@@ -594,6 +714,31 @@ export default function App() {
         character={inspectingCharacter || savedCharacter}
         isOpen={isSheetModalOpen}
         onClose={() => setIsSheetModalOpen(false)}
+      />
+
+      {/* Google Drive Export Modal */}
+      <DriveExportModal
+        isOpen={isDriveModalOpen}
+        onClose={() => setIsDriveModalOpen(false)}
+        savedCharacter={savedCharacter}
+        activeQuests={activeQuests}
+        playerStats={playerStats}
+        user={user}
+        accessToken={accessToken}
+        onSignIn={handleGoogleSignIn}
+        defaultTarget={driveTarget}
+      />
+
+      {/* Google Sheets Export Modal */}
+      <SheetsExportModal
+        isOpen={isSheetsModalOpen}
+        onClose={() => setIsSheetsModalOpen(false)}
+        activeQuests={activeQuests}
+        playerStats={playerStats}
+        savedCharacter={savedCharacter}
+        user={user}
+        accessToken={accessToken}
+        onSignIn={handleGoogleSignIn}
       />
     </div>
   );
